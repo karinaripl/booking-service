@@ -1,3 +1,6 @@
 spring:
   application:
     name: room-service
+
+server:
+  port: 8083

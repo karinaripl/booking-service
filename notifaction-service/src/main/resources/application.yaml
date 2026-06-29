@@ -1,3 +1,6 @@
 spring:
   application:
     name: notifaction-service
+
+server:
+  port: 8082

@@ -1,3 +1,27 @@
 spring:
   application:
     name: gateway-service
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: auth-service
+              uri: http://localhost:8080
+              predicates:
+              - Path=/auth/**
+            - id: booking-service
+              uri: http://localhost:8081
+              predicates:
+              - Path=/booking/**
+            - id: notifaction-service
+              uri: http://localhost:8082
+              predicates:
+              - Path=/notifaction/**
+            - id: room-service
+              uri: http://localhost:8083
+              predicates:
+              - Path=/room/**
+
+server:
+  port: 8765
