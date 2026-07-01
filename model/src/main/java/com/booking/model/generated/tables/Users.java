@@ -70,9 +70,9 @@ public class Users extends TableImpl<UsersRecord> {
     public final TableField<UsersRecord, String> EMAIL = createField(DSL.name("email"), SQLDataType.VARCHAR(255).nullable(false), this, "");
 
     /**
-     * The column <code>users_schema.users.password</code>.
+     * The column <code>users_schema.users.password_hash</code>.
      */
-    public final TableField<UsersRecord, String> PASSWORD = createField(DSL.name("password"), SQLDataType.VARCHAR(255).nullable(false), this, "");
+    public final TableField<UsersRecord, String> PASSWORD_HASH = createField(DSL.name("password_hash"), SQLDataType.VARCHAR(255).nullable(false), this, "");
 
     /**
      * The column <code>users_schema.users.created_at</code>.

@@ -63,16 +63,16 @@ public class UsersRecord extends UpdatableRecordImpl<UsersRecord> {
     }
 
     /**
-     * Setter for <code>users_schema.users.password</code>.
+     * Setter for <code>users_schema.users.password_hash</code>.
      */
-    public void setPassword(String value) {
+    public void setPasswordHash(String value) {
         set(3, value);
     }
 
     /**
-     * Getter for <code>users_schema.users.password</code>.
+     * Getter for <code>users_schema.users.password_hash</code>.
      */
-    public String getPassword() {
+    public String getPasswordHash() {
         return (String) get(3);
     }
 
@@ -113,13 +113,13 @@ public class UsersRecord extends UpdatableRecordImpl<UsersRecord> {
     /**
      * Create a detached, initialised UsersRecord
      */
-    public UsersRecord(Long id, String username, String email, String password, LocalDateTime createdAt) {
+    public UsersRecord(Long id, String username, String email, String passwordHash, LocalDateTime createdAt) {
         super(Users.USERS);
 
         setId(id);
         setUsername(username);
         setEmail(email);
-        setPassword(password);
+        setPasswordHash(passwordHash);
         setCreatedAt(createdAt);
         resetTouchedOnNotNull();
     }
