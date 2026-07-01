@@ -15,6 +15,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>liquibase</module>
         <module>booking-service</module>
         <module>notifaction-service</module>
         <module>gateway-auth-starter</module>

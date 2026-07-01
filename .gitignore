@@ -44,3 +44,4 @@ build/
 
 
 application-local.yml
+local.properties

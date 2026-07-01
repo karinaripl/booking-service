@@ -4,6 +4,6 @@ spring:
   profiles:
     active: local
   liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: false
 server:
   port: 8080
