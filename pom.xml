@@ -16,6 +16,7 @@
 
     <modules>
         <module>liquibase</module>
+        <module>model</module>
         <module>booking-service</module>
         <module>notifaction-service</module>
         <module>gateway-auth-starter</module>
