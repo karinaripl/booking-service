@@ -45,3 +45,5 @@ build/
 
 application-local.yml
 local.properties
+
+/MODULES.md
