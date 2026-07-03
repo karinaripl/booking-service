@@ -43,7 +43,7 @@ build/
 /**/mvnw.cmd
 
 
-application-local.yml
+application-local.yaml
 local.properties
 
 /MODULES.md

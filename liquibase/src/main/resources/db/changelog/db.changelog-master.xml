@@ -8,4 +8,6 @@
     <include file="db/changelog/auth/V1__create_users_table.xml"/>
     <include file="db/changelog/auth/V2__rename_password_to_password_hash.xml"/>
 
+    <include file="db/changelog/booking/V1__create_booking_table.xml"/>
+
 </databaseChangeLog>

@@ -1,6 +1,10 @@
 spring:
   application:
     name: booking-service
+  profiles:
+    active: local
+  liquibase:
+    enabled: false
 
 server:
   port: 8081
