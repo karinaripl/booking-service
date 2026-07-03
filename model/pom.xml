@@ -105,6 +105,33 @@
                             </generator>
                         </configuration>
                     </execution>
+
+                    <!-- Генерация для room_schema -->
+                    <execution>
+                        <id>generate-room</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <jdbc>
+                                <driver>org.postgresql.Driver</driver>
+                                <url>${db.url}</url>
+                                <user>${db.username}</user>
+                                <password>${db.password}</password>
+                            </jdbc>
+                            <generator>
+                                <database>
+                                    <name>org.jooq.meta.postgres.PostgresDatabase</name>
+                                    <inputSchema>room_schema</inputSchema>
+                                </database>
+                                <target>
+                                    <packageName>com.booking.model.generated.room</packageName>
+                                    <directory>src/main/java</directory>
+                                </target>
+                            </generator>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>

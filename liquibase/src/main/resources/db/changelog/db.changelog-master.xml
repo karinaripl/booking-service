@@ -10,4 +10,6 @@
 
     <include file="db/changelog/booking/V1__create_booking_table.xml"/>
 
+    <include file="db/changelog/room/V1__create_room_table.xml"/>
+
 </databaseChangeLog>
