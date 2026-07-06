@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.jooq.Condition;
 import org.jooq.Field;
-import org.jooq.Identity;
 import org.jooq.Name;
 import org.jooq.PlainSQL;
 import org.jooq.QueryPart;
@@ -57,7 +56,7 @@ public class Users extends TableImpl<UsersRecord> {
     /**
      * The column <code>users_schema.users.id</code>.
      */
-    public final TableField<UsersRecord, Long> ID = createField(DSL.name("id"), SQLDataType.BIGINT.nullable(false).generatedByDefaultAsIdentity(), this, "");
+    public final TableField<UsersRecord, Long> ID = createField(DSL.name("id"), SQLDataType.BIGINT.nullable(false), this, "");
 
     /**
      * The column <code>users_schema.users.username</code>.
@@ -77,7 +76,7 @@ public class Users extends TableImpl<UsersRecord> {
     /**
      * The column <code>users_schema.users.created_at</code>.
      */
-    public final TableField<UsersRecord, LocalDateTime> CREATED_AT = createField(DSL.name("created_at"), SQLDataType.LOCALDATETIME(6).defaultValue(DSL.field(DSL.raw("now()"), SQLDataType.LOCALDATETIME)), this, "");
+    public final TableField<UsersRecord, LocalDateTime> CREATED_AT = createField(DSL.name("created_at"), SQLDataType.LOCALDATETIME(6).defaultValue(DSL.field(DSL.raw("CURRENT_TIMESTAMP"), SQLDataType.LOCALDATETIME)), this, "");
 
     private Users(Name alias, Table<UsersRecord> aliased) {
         this(alias, aliased, (Field<?>[]) null, null);
@@ -111,11 +110,6 @@ public class Users extends TableImpl<UsersRecord> {
     @Override
     public Schema getSchema() {
         return aliased() ? null : UsersSchema.USERS_SCHEMA;
-    }
-
-    @Override
-    public Identity<UsersRecord, Long> getIdentity() {
-        return (Identity<UsersRecord, Long>) super.getIdentity();
     }
 
     @Override

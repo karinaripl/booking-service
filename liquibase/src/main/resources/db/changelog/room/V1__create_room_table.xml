@@ -5,33 +5,11 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-
-    <changeSet id="1" author="olga">
-        <sql>CREATE SCHEMA IF NOT EXISTS room_schema;</sql>
-    </changeSet>
-
-
-    <changeSet id="2" author="olga">
-        <createTable tableName="rooms" schemaName="room_schema">
-            <column name="id" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"/>
-            </column>
-            <column name="name" type="VARCHAR(100)">
-                <constraints nullable="false" unique="true"/>
-            </column>
-            <column name="capacity" type="INT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="description" type="TEXT"/>
-            <column name="location" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
-                <constraints nullable="false"/>
-            </column>
-            <column name="created_at" type="TIMESTAMP"
-                    defaultValueComputed="CURRENT_TIMESTAMP"/>
-        </createTable>
+    <changeSet id="room-V1" author="olga">
+        <sqlFile path="db/changelog/room/V1__create_room_table.sql"/>
+        <rollback>
+            <sqlFile path="db/changelog/room/V1__create_room_table_rollback.sql"/>
+        </rollback>
     </changeSet>
 
 </databaseChangeLog>

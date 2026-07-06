@@ -9,14 +9,10 @@ import com.booking.model.generated.booking.Keys;
 import com.booking.model.generated.booking.tables.records.BookingRecord;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
-import org.jooq.Check;
 import org.jooq.Condition;
 import org.jooq.Field;
-import org.jooq.Identity;
 import org.jooq.Name;
 import org.jooq.PlainSQL;
 import org.jooq.QueryPart;
@@ -58,7 +54,7 @@ public class Booking extends TableImpl<BookingRecord> {
     /**
      * The column <code>booking_schema.booking.id</code>.
      */
-    public final TableField<BookingRecord, Long> ID = createField(DSL.name("id"), SQLDataType.BIGINT.nullable(false).generatedByDefaultAsIdentity(), this, "");
+    public final TableField<BookingRecord, Long> ID = createField(DSL.name("id"), SQLDataType.BIGINT.nullable(false), this, "");
 
     /**
      * The column <code>booking_schema.booking.user_id</code>.
@@ -88,7 +84,7 @@ public class Booking extends TableImpl<BookingRecord> {
     /**
      * The column <code>booking_schema.booking.created_at</code>.
      */
-    public final TableField<BookingRecord, LocalDateTime> CREATED_AT = createField(DSL.name("created_at"), SQLDataType.LOCALDATETIME(6).defaultValue(DSL.field(DSL.raw("now()"), SQLDataType.LOCALDATETIME)), this, "");
+    public final TableField<BookingRecord, LocalDateTime> CREATED_AT = createField(DSL.name("created_at"), SQLDataType.LOCALDATETIME(6).defaultValue(DSL.field(DSL.raw("CURRENT_TIMESTAMP"), SQLDataType.LOCALDATETIME)), this, "");
 
     private Booking(Name alias, Table<BookingRecord> aliased) {
         this(alias, aliased, (Field<?>[]) null, null);
@@ -125,20 +121,8 @@ public class Booking extends TableImpl<BookingRecord> {
     }
 
     @Override
-    public Identity<BookingRecord, Long> getIdentity() {
-        return (Identity<BookingRecord, Long>) super.getIdentity();
-    }
-
-    @Override
     public UniqueKey<BookingRecord> getPrimaryKey() {
         return Keys.BOOKING_PKEY;
-    }
-
-    @Override
-    public List<Check<BookingRecord>> getChecks() {
-        return Arrays.asList(
-            Internal.createCheck(this, DSL.name("bookings_status_check"), "(((status)::text = ANY ((ARRAY['PENDING'::character varying, 'CONFIRMED'::character varying, 'CANCELLED'::character varying])::text[])))", true)
-        );
     }
 
     @Override

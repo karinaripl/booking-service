@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.jooq.Condition;
 import org.jooq.Field;
-import org.jooq.Identity;
 import org.jooq.Name;
 import org.jooq.PlainSQL;
 import org.jooq.QueryPart;
@@ -57,7 +56,7 @@ public class Rooms extends TableImpl<RoomsRecord> {
     /**
      * The column <code>room_schema.rooms.id</code>.
      */
-    public final TableField<RoomsRecord, Long> ID = createField(DSL.name("id"), SQLDataType.BIGINT.nullable(false).generatedByDefaultAsIdentity(), this, "");
+    public final TableField<RoomsRecord, Long> ID = createField(DSL.name("id"), SQLDataType.BIGINT.nullable(false), this, "");
 
     /**
      * The column <code>room_schema.rooms.name</code>.
@@ -87,7 +86,7 @@ public class Rooms extends TableImpl<RoomsRecord> {
     /**
      * The column <code>room_schema.rooms.created_at</code>.
      */
-    public final TableField<RoomsRecord, LocalDateTime> CREATED_AT = createField(DSL.name("created_at"), SQLDataType.LOCALDATETIME(6).defaultValue(DSL.field(DSL.raw("now()"), SQLDataType.LOCALDATETIME)), this, "");
+    public final TableField<RoomsRecord, LocalDateTime> CREATED_AT = createField(DSL.name("created_at"), SQLDataType.LOCALDATETIME(6).defaultValue(DSL.field(DSL.raw("CURRENT_TIMESTAMP"), SQLDataType.LOCALDATETIME)), this, "");
 
     private Rooms(Name alias, Table<RoomsRecord> aliased) {
         this(alias, aliased, (Field<?>[]) null, null);
@@ -121,11 +120,6 @@ public class Rooms extends TableImpl<RoomsRecord> {
     @Override
     public Schema getSchema() {
         return aliased() ? null : RoomSchema.ROOM_SCHEMA;
-    }
-
-    @Override
-    public Identity<RoomsRecord, Long> getIdentity() {
-        return (Identity<RoomsRecord, Long>) super.getIdentity();
     }
 
     @Override
