@@ -1,38 +1,30 @@
 spring:
   application:
     name: gateway-service
-  autoconfigure:
-    exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
   cloud:
     gateway:
       server:
-        webmvc:
-          http-client:
-            connect-timeout: 5000
-            response-timeout: 5s
+        webflux:
           routes:
             - id: auth-service
               uri: http://localhost:8080
               predicates:
-              - Path=/auth/**
+                - Path=/auth/**
             - id: booking-service
               uri: http://localhost:8081
               predicates:
-              - Path=/booking/**
+                - Path=/booking/**
             - id: notifaction-service
               uri: http://localhost:8082
               predicates:
-              - Path=/notifaction/**
+                - Path=/notifaction/**
             - id: room-service
               uri: http://localhost:8083
               predicates:
-              - Path=/room/**
+                - Path=/room/**
 
 server:
   port: 8765
 
 jwt:
   secret: ${JWT_SECRET}
-
-
-

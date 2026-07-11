@@ -3,42 +3,42 @@ package com.booking.gateway_service.filter;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.Ordered;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
 import javax.crypto.SecretKey;
-import java.io.IOException;
 
 @Component
-public class JwtFilter extends OncePerRequestFilter {
+public class JwtFilter implements GlobalFilter, Ordered {
 
     @Value("${jwt.secret}")
     private String secret;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
-            throws ServletException, IOException {
+    public int getOrder() {
+        return -1;
+    }
 
-        String path = request.getRequestURI();
+    @Override
+    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        String path = exchange.getRequest().getURI().getPath();
 
         if (path.startsWith("/auth/")) {
-            filterChain.doFilter(request, response);
-            return;
+            return chain.filter(exchange);
         }
 
-        String authHeader = request.getHeader("Authorization");
+        String authHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Missing or invalid Authorization header");
-            return;
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            return exchange.getResponse().setComplete();
         }
 
         String token = authHeader.substring(7);
@@ -51,12 +51,15 @@ public class JwtFilter extends OncePerRequestFilter {
                     .parseSignedClaims(token)
                     .getPayload();
 
-            request = new HeaderMutatingRequest(request, claims.getSubject());
-            filterChain.doFilter(request, response);
+            ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
+                    .header("X-User-Email", claims.getSubject())
+                    .build();
+
+            return chain.filter(exchange.mutate().request(mutatedRequest).build());
 
         } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Invalid or expired token");
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            return exchange.getResponse().setComplete();
         }
     }
 }
