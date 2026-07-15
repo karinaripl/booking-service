@@ -42,17 +42,19 @@ public class GatewayAuthFilter extends OncePerRequestFilter {
 
         String userEmail = request.getHeader("X-User-Email");
         String userRole = request.getHeader("X-User-Role");
+        String userId = request.getHeader("X-User-Id");
         String signature = request.getHeader("X-Gateway-Signature");
 
         if (userEmail == null || userEmail.isBlank()
                 || userRole == null || userRole.isBlank()
+                || userId == null || userId.isBlank()
                 || signature == null || signature.isBlank()) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.getWriter().write("Access denied: request must go through gateway");
             return;
         }
 
-        String expectedSignature = computeSignature(userEmail, userRole, properties.getSecret());
+        String expectedSignature = computeSignature(userEmail, userRole, userId, properties.getSecret());
         if (!expectedSignature.equals(signature)) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.getWriter().write("Access denied: invalid gateway signature");
@@ -64,12 +66,14 @@ public class GatewayAuthFilter extends OncePerRequestFilter {
         var authentication = new UsernamePasswordAuthenticationToken(userEmail, null, authorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        request.setAttribute("userId", Long.valueOf(userId));
+
         filterChain.doFilter(request, response);
     }
 
-    private String computeSignature(String email, String role, String secret) {
+    private String computeSignature(String email, String role, String userId, String secret) {
         try {
-            String data = email + ":" + role;
+            String data = email + ":" + role + ":" + userId;
             Mac mac = Mac.getInstance("HmacSHA256");
             SecretKeySpec keySpec = new SecretKeySpec(
                     secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");

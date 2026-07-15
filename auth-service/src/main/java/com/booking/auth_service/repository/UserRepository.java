@@ -22,6 +22,7 @@ public class UserRepository {
                 .set(USERS.USERNAME, user.getUsername())
                 .set(USERS.EMAIL, user.getEmail())
                 .set(USERS.PASSWORD_HASH, user.getPasswordHash())
+                .set(USERS.ROLE, user.getRole())
                 .returning()
                 .fetchOne();
     }
