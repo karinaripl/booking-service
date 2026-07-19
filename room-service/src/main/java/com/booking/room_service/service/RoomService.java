@@ -5,101 +5,64 @@ import com.booking.room_service.dto.RoomExistsResponse;
 import com.booking.room_service.dto.RoomRequest;
 import com.booking.room_service.dto.RoomResponse;
 import com.booking.room_service.exception.RoomNotFoundException;
-import org.jooq.DSLContext;
+import com.booking.room_service.mapper.RoomMapper;
+import com.booking.room_service.repository.RoomRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.booking.model.generated.room.tables.Rooms.ROOMS;
-
 @Service
 public class RoomService {
 
-    private final DSLContext dsl;
+    private final RoomRepository roomRepository;
+    private final RoomMapper roomMapper;
 
-    public RoomService(DSLContext dsl) {
-        this.dsl = dsl;
+    public RoomService(RoomRepository roomRepository, RoomMapper roomMapper) {
+        this.roomRepository = roomRepository;
+        this.roomMapper = roomMapper;
     }
 
     public RoomResponse create(RoomRequest request) {
-        RoomsRecord record = dsl.insertInto(ROOMS)
-                .set(ROOMS.NAME, request.name())
-                .set(ROOMS.CAPACITY, request.capacity())
-                .set(ROOMS.DESCRIPTION, request.description())
-                .set(ROOMS.LOCATION, request.location())
-                .set(ROOMS.IS_ACTIVE, true)
-                .returning()
-                .fetchOne();
-
-        return toResponse(record);
+        RoomsRecord record = roomRepository.insert(
+                request.name(), request.capacity(), request.description(), request.location());
+        return roomMapper.toResponse(record);
     }
 
     public List<RoomResponse> findAll() {
-        return dsl.selectFrom(ROOMS)
-                .where(ROOMS.IS_ACTIVE.isTrue())
-                .fetch()
-                .map(this::toResponse);
+        return roomRepository.findAllActive().stream()
+                .map(roomMapper::toResponse)
+                .toList();
     }
 
     public RoomResponse findById(Long id) {
-        RoomsRecord record = dsl.selectFrom(ROOMS)
-                .where(ROOMS.ID.eq(id))
-                .fetchOne();
-
+        RoomsRecord record = roomRepository.findById(id);
         if (record == null) {
             throw new RoomNotFoundException(id);
         }
-        return toResponse(record);
+        return roomMapper.toResponse(record);
     }
 
     public RoomResponse update(Long id, RoomRequest request) {
-        int updated = dsl.update(ROOMS)
-                .set(ROOMS.NAME, request.name())
-                .set(ROOMS.CAPACITY, request.capacity())
-                .set(ROOMS.DESCRIPTION, request.description())
-                .set(ROOMS.LOCATION, request.location())
-                .where(ROOMS.ID.eq(id))
-                .execute();
-
+        int updated = roomRepository.update(
+                id, request.name(), request.capacity(), request.description(), request.location());
         if (updated == 0) {
             throw new RoomNotFoundException(id);
         }
         return findById(id);
     }
 
-
     public void delete(Long id) {
-        int updated = dsl.update(ROOMS)
-                .set(ROOMS.IS_ACTIVE, false)
-                .where(ROOMS.ID.eq(id))
-                .execute();
-
+        int updated = roomRepository.deactivate(id);
         if (updated == 0) {
             throw new RoomNotFoundException(id);
         }
     }
 
     public RoomExistsResponse checkExists(Long id) {
-        RoomsRecord record = dsl.selectFrom(ROOMS)
-                .where(ROOMS.ID.eq(id))
-                .and(ROOMS.IS_ACTIVE.isTrue())
-                .fetchOne();
-
+        RoomsRecord record = roomRepository.findActiveById(id);
         if (record == null) {
             return new RoomExistsResponse(false, id, null);
         }
         return new RoomExistsResponse(true, id, record.getCapacity());
-    }
-
-    private RoomResponse toResponse(RoomsRecord record) {
-        return new RoomResponse(
-                record.getId(),
-                record.getName(),
-                record.getCapacity(),
-                record.getDescription(),
-                record.getLocation(),
-                record.getIsActive(),
-                record.getCreatedAt()
-        );
     }
 }
