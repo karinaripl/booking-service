@@ -39,7 +39,7 @@ public class BookingService {
         this.notificationClient = notificationClient;
     }
 
-    public BookingResponse create(Long userId, BookingRequest request) {
+    public BookingResponse create(Long userId, String userEmail, BookingRequest request) {
         RoomExistsResponse room;
         try {
             room = roomClient.checkExists(request.roomId());
@@ -58,8 +58,7 @@ public class BookingService {
         BookingRecord record = bookingRepository.insert(
                 userId, request.roomId(), request.startTime(), request.endTime());
 
-        notifySafely(userId, "BOOKING_CREATED",
-                "Ваша бронь на " + request.startTime() + " создана и ожидает подтверждения");
+        notifySafely(userId, userEmail, "BOOKING_CREATED" , "Ваша бронь на " + request.startTime() + " создана и ожидает подтверждения");
 
         return bookingMapper.toResponse(record);
     }
@@ -86,15 +85,15 @@ public class BookingService {
 
         bookingRepository.cancel(id);
 
-        notifySafely(record.getUserId(), "BOOKING_CANCELLED",
-                "Ваша бронь на " + record.getStartTime() + " отменена");
+        notifySafely(record.getUserId(), null, "BOOKING_CANCELLED", "Ваша бронь на " + record.getStartTime() + " отменена");
     }
 
-    private void notifySafely(Long userId, String type, String message) {
+    private void notifySafely(Long userId, String userEmail, String type, String message) {
         try {
-            notificationClient.send(new NotificationRequest(userId, type, message));
+            notificationClient.send(new NotificationRequest(userId, userEmail, type, message));
         } catch (Exception e) {
             log.warn("Не удалось отправить уведомление userId={}, type={}: {}", userId, type, e.getMessage());
         }
     }
+
 }
