@@ -67,6 +67,7 @@ public class GatewayAuthFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         request.setAttribute("userId", Long.valueOf(userId));
+        request.setAttribute("userEmail", userEmail);;
 
         filterChain.doFilter(request, response);
     }

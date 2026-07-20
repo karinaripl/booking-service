@@ -26,7 +26,8 @@ public class BookingController {
     public ResponseEntity<BookingResponse> create(@Valid @RequestBody BookingRequest request,
                                                   HttpServletRequest httpRequest) {
         Long userId = extractUserId(httpRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(bookingService.create(userId, request));
+        String userEmail = extractUserEmail(httpRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(bookingService.create(userId, userEmail, request));
     }
 
     @GetMapping
@@ -56,6 +57,10 @@ public class BookingController {
 
     private Long extractUserId(HttpServletRequest request) {
         return (Long) request.getAttribute("userId");
+    }
+
+    private String extractUserEmail(HttpServletRequest request) {
+        return (String) request.getAttribute("userEmail");
     }
 
     private boolean isAdmin(Authentication authentication) {

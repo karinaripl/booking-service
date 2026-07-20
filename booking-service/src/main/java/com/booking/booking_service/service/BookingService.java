@@ -1,6 +1,5 @@
 package com.booking.booking_service.service;
 
-import com.booking.booking_service.client.NotificationClient;
 import com.booking.booking_service.client.RoomClient;
 import com.booking.booking_service.dto.BookingRequest;
 import com.booking.booking_service.dto.BookingResponse;
@@ -9,6 +8,7 @@ import com.booking.booking_service.dto.RoomExistsResponse;
 import com.booking.booking_service.exception.BookingNotFoundException;
 import com.booking.booking_service.exception.CapacityExceededException;
 import com.booking.booking_service.exception.RoomNotFoundException;
+import com.booking.booking_service.kafka.NotificationEventProducer;
 import com.booking.booking_service.mapper.BookingMapper;
 import com.booking.booking_service.repository.BookingRepository;
 import com.booking.model.generated.booking.tables.records.BookingRecord;
@@ -27,19 +27,19 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final BookingMapper bookingMapper;
     private final RoomClient roomClient;
-    private final NotificationClient notificationClient;
+    private final NotificationEventProducer notificationEventProducer;
 
     public BookingService(BookingRepository bookingRepository,
                           BookingMapper bookingMapper,
                           RoomClient roomClient,
-                          NotificationClient notificationClient) {
+                          NotificationEventProducer notificationEventProducer) {
         this.bookingRepository = bookingRepository;
         this.bookingMapper = bookingMapper;
         this.roomClient = roomClient;
-        this.notificationClient = notificationClient;
+        this.notificationEventProducer = notificationEventProducer;
     }
 
-    public BookingResponse create(Long userId, BookingRequest request) {
+    public BookingResponse create(Long userId, String userEmail, BookingRequest request) {
         RoomExistsResponse room;
         try {
             room = roomClient.checkExists(request.roomId());
@@ -58,7 +58,7 @@ public class BookingService {
         BookingRecord record = bookingRepository.insert(
                 userId, request.roomId(), request.startTime(), request.endTime());
 
-        notifySafely(userId, "BOOKING_CREATED",
+        notifySafely(userId, userEmail, "BOOKING_CREATED",
                 "Ваша бронь на " + request.startTime() + " создана и ожидает подтверждения");
 
         return bookingMapper.toResponse(record);
@@ -86,13 +86,13 @@ public class BookingService {
 
         bookingRepository.cancel(id);
 
-        notifySafely(record.getUserId(), "BOOKING_CANCELLED",
+        notifySafely(record.getUserId(), null, "BOOKING_CANCELLED",
                 "Ваша бронь на " + record.getStartTime() + " отменена");
     }
 
-    private void notifySafely(Long userId, String type, String message) {
+    private void notifySafely(Long userId, String userEmail, String type, String message) {
         try {
-            notificationClient.send(new NotificationRequest(userId, type, message));
+            notificationEventProducer.send(new NotificationRequest(userId, userEmail, type, message));
         } catch (Exception e) {
             log.warn("Не удалось отправить уведомление userId={}, type={}: {}", userId, type, e.getMessage());
         }
