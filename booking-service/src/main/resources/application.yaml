@@ -5,6 +5,11 @@ spring:
     active: local
   liquibase:
     enabled: false
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 server:
   port: 8081
@@ -18,3 +23,7 @@ room-service:
 
 notification-service:
   url: http://localhost:8082
+
+kafka:
+  topic:
+    booking-notifications: booking-notifications
