@@ -36,11 +36,17 @@ public class AddGatewayHeadersFilter implements GlobalFilter, Ordered {
                     if (principal instanceof Jwt jwt) {
                         String email = jwt.getSubject();
                         String role = jwt.getClaimAsString("role");
-                        String signature = computeSignature(email, role, secret);
+                        Long userId = jwt.getClaim("userId") != null
+                                ? ((Number) jwt.getClaim("userId")).longValue()
+                                : null;
+                        String userIdStr = userId != null ? String.valueOf(userId) : "";
+
+                        String signature = computeSignature(email, role, userIdStr, secret);
 
                         ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
                                 .header("X-User-Email", email)
                                 .header("X-User-Role", role != null ? role : "")
+                                .header("X-User-Id", userIdStr)
                                 .header("X-Gateway-Signature", signature)
                                 .build();
 
@@ -52,9 +58,9 @@ public class AddGatewayHeadersFilter implements GlobalFilter, Ordered {
                 .switchIfEmpty(chain.filter(exchange));
     }
 
-    private String computeSignature(String email, String role, String secret) {
+    private String computeSignature(String email, String role, String userId, String secret) {
         try {
-            String data = email + ":" + role;
+            String data = email + ":" + role + ":" + userId;
             Mac mac = Mac.getInstance("HmacSHA256");
             SecretKeySpec keySpec = new SecretKeySpec(
                     secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");

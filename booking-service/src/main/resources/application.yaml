@@ -8,3 +8,13 @@ spring:
 
 server:
   port: 8081
+
+gateway:
+  auth:
+    secret: ${JWT_SECRET}
+
+room-service:
+  url: http://localhost:8083
+
+notification-service:
+  url: http://localhost:8082

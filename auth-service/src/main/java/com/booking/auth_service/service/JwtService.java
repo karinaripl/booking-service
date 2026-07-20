@@ -18,17 +18,15 @@ public class JwtService {
     @Value("${jwt.expiration}")
     private long expiration;
 
-    public String generateToken(String email, String role){
+    public String generateToken(Long userId, String email, String role) {
         SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
 
         return Jwts.builder()
                 .subject(email)
-                .claims(Map.of("role", role))
+                .claims(Map.of("role", role, "userId", userId))
                 .issuedAt(new Date())
-                .expiration( new Date(System.currentTimeMillis() + expiration))
+                .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(key)
                 .compact();
     }
-
-
 }
